@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List App</title>
+    <style>
+        /* A simple loading screen while it decides where to redirect */
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #121212; /* Dark background by default to match your theme */
+            color: #ff9800; /* Orange accent */
+            font-family: 'Inter', sans-serif;
+        }
+        .loader {
+            text-align: center;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 152, 0, 0.3);
+            border-top: 4px solid #ff9800;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="loader">
+        <div class="spinner"></div>
+        <h2>Loading To-Do List...</h2>
+    </div>
+
+    <script>
+        // Check if the user is already logged in
+        document.addEventListener("DOMContentLoaded", () => {
+            // In your final Spring Boot version, you will check for a JWT token here
+            const isLoggedIn = localStorage.getItem('username'); 
+
+            setTimeout(() => {
+                if (isLoggedIn) {
+                    // If logged in, go directly to the dashboard
+                    window.location.href = 'dashboard.html';
+                } else {
+                    // If not logged in, send them to the login page
+                    window.location.href = 'login.html';
+                }
+            }, 500); // Small 0.5s delay just to make the routing look smooth
+        });
+    </script>
+</body>
+</html>

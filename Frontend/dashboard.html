@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - To-Do List</title>
+    <link rel="stylesheet" href="Assests\style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fas fa-check-double"></i> To-Do List
+            </div>
+            <div class="user-info" id="greeting">
+                Hello, User
+            </div>
+            <nav class="menu">
+                <div class="menu-item active" onclick="switchView('dashboardView')">
+                    <i class="fas fa-tasks"></i> My Tasks
+                </div>
+                <div class="menu-item" onclick="alert('Future Enhancement:\nAI will summarize your completed tasks for the day.')">
+                    <i class="fas fa-wand-magic-sparkles"></i> AI Summary
+                    <span class="badge" style="margin-left: auto; background: var(--border-color); color: var(--text-secondary); font-size: 0.6rem;">SOON</span>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="theme-switch-wrapper">
+                    <span><i class="fas fa-sun" id="theme-icon"></i> <span id="theme-text">Light Mode</span></span>
+                    <label class="theme-switch" for="theme-toggle">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider"></span>
+                    </label>
+                </div>
+                <a href="login.html" class="menu-item" style="color: var(--accent-danger)">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <section id="dashboardView" class="task-view active">
+                <div class="top-bar">
+                    <h1 class="page-title">My Tasks</h1>
+                    <button class="btn btn-primary" onclick="switchView('addTaskView')">
+                        <i class="fas fa-plus"></i> Add New Task
+                    </button>
+                </div>
+
+                <div class="controls-bar">
+                    <div class="filters">
+                        <select class="filter-select">
+                            <option>Priority: All</option>
+                            <option>High</option>
+                            <option>Medium</option>
+                            <option>Low</option>
+                        </select>
+                        <select class="filter-select">
+                            <option>Status: All</option>
+                            <option>Pending</option>
+                            <option>Completed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="task-list">
+                    <div class="task-card">
+                        <div class="task-details">
+                            <h4>Doctor Appointment <span class="badge badge-high">High</span></h4>
+                            <p>Visit the dentist to check my tooth 🦷</p>
+                            <div class="task-meta">
+                                <span><i class="far fa-calendar-alt"></i> Due: 15/05/2026</span>
+                                <span>Created: 10/05/2026</span>
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn btn-outline btn-sm" onclick="switchView('editTaskView')">Edit</button>
+                            <button class="btn btn-outline btn-sm" style="color: var(--accent-success); border-color: var(--accent-success);">
+                                <i class="fas fa-check"></i> Mark Done
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="task-card" style="opacity: 0.8;"> <div class="task-details">
+                        <h4>
+                            <del>Visit My Supervisor</del> 
+                            <span class="badge badge-completed">Completed</span>
+                        </h4>
+                        <p><del>Discuss project progress and block diagram.</del></p>
+                        <div class="task-meta" style="font-size: 0.8rem; color: var(--text-secondary);">
+                        <span><i class="far fa-calendar-check"></i> Completed: 12/05/2026</span>
+                        </div>
+                    </div>
+                <div class="task-actions">
+                    <span class="badge badge-completed"><i class="fas fa-check-circle"></i> Done</span>
+                </div>
+                </div>
+                </div>
+            </section>
+
+
+            <section id="addTaskView" class="task-view">
+                <div class="top-bar">
+                <h1 class="page-title">Add New Task</h1>
+                <button class="btn btn-outline" onclick="switchView('dashboardView')">Cancel</button>
+                </div>
+
+            <div class="form-container">
+            <div class="form-group">
+                <label>Title *</label>
+                <input type="text" id="newTitle" class="form-input" placeholder="Enter Task Title...">
+            </div>
+            <div class="form-group">
+            <label>Description</label>
+            <textarea id="newDesc" class="form-input" rows="4" placeholder="Enter task description..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>Due Date</label>
+            <input type="date" id="newDate" class="form-input">
+        </div>
+        <div class="form-group">
+            <label>Priority</label>
+            <select id="newPriority" class="form-input">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM" selected>Medium</option>
+                <option value="HIGH">High</option>
+            </select>
+        </div>
+        <div class="form-actions">
+            <button type="button" id="btnSaveTask" class="btn btn-primary" style="width: auto;">Create Task</button>
+            <button type="button" class="btn btn-outline" style="width: auto; margin-left: 10px;" onclick="switchView('dashboardView')">Cancel</button>
+        </div>
+    </div>
+</section>
+
+
+            <section id="editTaskView" class="task-view">
+                <div class="top-bar">
+                    <h1 class="page-title">Edit Task</h1>
+                </div>
+
+                <div class="form-container">
+                    <div class="form-group">
+                        <label>Title *</label>
+                        <input type="text" id="editTitle" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="editDesc" class="form-input" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Due Date</label>
+                        <input type="date" id="editDate" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select id="editPriority" class="form-input">
+                            <option value="LOW">Low</option>
+                            <option value="MEDIUM">Medium</option>
+                            <option value="HIGH">High</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-group">
+                            <input type="checkbox" id="editCompleted"> Mark as Completed
+                        </label>
+                    </div>
+
+                    <div class="form-actions" style="justify-content: space-between;">
+                        <div>
+                            <button type="button" id="btnUpdateTask" class="btn btn-primary" style="width: auto;">Update Task</button>
+                            <button type="button" class="btn btn-outline" onclick="switchView('dashboardView')">Cancel</button>
+                        </div>
+                        <button type="button" id="btnDeleteTaskFromEdit" class="btn btn-danger">Delete</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="Assests\app.js"></script>
+</body>
+</html>

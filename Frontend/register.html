@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - To-Do List</title>
+    <link rel="stylesheet" href="Assests\style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+           <div style="display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 2rem; font-weight: 700; color: var(--primary-color); margin-bottom: 10px;">
+    <i class="fas fa-check-double"></i> To-Do List
+</div>
+<h2 style="text-align: center; margin-bottom: 25px; font-size: 1.2rem; color: var(--text-primary);">Create your account</h2>
+            <form action="login.html">
+                <div class="form-group">
+                    <label for="reg-username">Username</label>
+                    <input type="text" id="reg-username" class="form-input" placeholder="Choose a username..." required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">Password</label>
+                    <input type="password" id="reg-password" class="form-input" placeholder="Choose a password..." required>
+                </div>
+                <button type="submit" class="btn btn-primary auth-btn">Register</button>
+            </form>
+            <div class="auth-switch">
+                Already have an account? <a href="login.html">Login here</a>
+            </div>
+        </div>
+        <div class="auth-footer">
+            © 2026 To-Do List App. All rights reserved.
+        </div>
+    </div>
+    <script>
+    document.querySelector('form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('reg-username').value;
+        const password = document.getElementById('reg-password').value;
+
+        try {
+            // Adjust this URL to match your Spring Boot AuthController endpoint
+            const response = await fetch('http://localhost:3030/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (response.ok) {
+                alert('Registration successful! Please login.');
+                window.location.href = 'login.html';
+            } else {
+                const errorData = await response.text();
+                alert('Registration failed: ' + errorData);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Could not connect to the server.');
+        }
+        });
+    </script>
+</body>
+</html>
