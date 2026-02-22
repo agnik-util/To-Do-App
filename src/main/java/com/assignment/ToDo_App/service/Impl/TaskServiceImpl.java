@@ -16,6 +16,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.MediaType;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
+import java.util.HashMap;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,7 +35,11 @@ import java.util.List;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
+    @Value("${groq.api.key}")
+    private String groqApiKey;
     private final UserService userService;
+
+
 
     @Override
     public Response<Task> createTask(TaskRequest taskRequest) {
@@ -158,5 +172,75 @@ public class TaskServiceImpl implements TaskService {
                 .data(tasks)
                 .build();
 
+    }
+
+    @Override
+    @Transactional
+    public Response<String> getDailyTaskSummary() {
+        log.info("inside getDailyTaskSummary()");
+
+        User currentUser = userService.getCurrentLoggedInUser();
+
+        // 1. Fetch only COMPLETED tasks for the user
+        List<Task> completedTasks = taskRepository.findByCompletedAndUser(true, currentUser);
+
+        if (completedTasks.isEmpty()) {
+            return Response.<String>builder()
+                    .statusCode(HttpStatus.OK.value())
+                    .message("No completed tasks to summarize.")
+                    .data("You haven't completed any tasks yet today. Get to work!")
+                    .build();
+        }
+
+        // 2. Build the prompt for the AI
+        StringBuilder prompt = new StringBuilder("I have completed the following tasks today. Please provide a short, encouraging 2-sentence summary of my productivity praising my work:\n");
+        for (Task task : completedTasks) {
+            prompt.append("- ").append(task.getTitle()).append(": ").append(task.getDescription() != null ? task.getDescription() : "No description").append("\n");
+        }
+
+        // 3. Call Groq API using RestTemplate
+        RestTemplate restTemplate = new RestTemplate();
+        String groqApiUrl = "https://api.groq.com/openai/v1/chat/completions";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(groqApiKey);
+
+        // Build the JSON payload for Groq (Using LLaMA 3 model)
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("model", "llama-3.3-70b-versatile");
+
+        Map<String, String> message = new HashMap<>();
+        message.put("role", "user");
+        message.put("content", prompt.toString());
+
+        requestBody.put("messages", List.of(message));
+        requestBody.put("temperature", 0.7);
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+
+        try {
+            // Send the request
+            String responseJson = restTemplate.postForObject(groqApiUrl, request, String.class);
+
+            // Extract the AI's message from the JSON response
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(responseJson);
+            String aiSummary = rootNode.path("choices").get(0).path("message").path("content").asText();
+
+            return Response.<String>builder()
+                    .statusCode(HttpStatus.OK.value())
+                    .message("AI Summary Generated")
+                    .data(aiSummary)
+                    .build();
+
+        } catch (Exception e) {
+            log.error("Failed to generate AI summary: ", e);
+            return Response.<String>builder()
+                    .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message("Error contacting AI Service")
+                    .data("Failed to generate summary at this time.")
+                    .build();
+        }
     }
 }

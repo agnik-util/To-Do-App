@@ -168,25 +168,51 @@ async function updateTaskStatus(taskId, currentCompletedStatus) {
     }
 }
 
-// 4. Delete a task
-async function deleteTask(taskId) {
-    if (!confirm('Are you sure you want to delete this task?')) return;
+// --- DELETE TASK MODAL LOGIC ---
+
+let taskToDeleteId = null; // Global variable to remember which task we clicked
+
+// 1. Opens the custom modal instead of the browser alert
+function deleteTask(taskId) {
+    taskToDeleteId = taskId;
+    document.getElementById('deleteModal').classList.add('active');
+}
+
+// 2. Closes the modal if you click Cancel or the X
+function closeDeleteModal() {
+    taskToDeleteId = null;
+    document.getElementById('deleteModal').classList.remove('active');
+}
+
+// 3. The actual API call that runs when you click the red "Delete" button inside the modal
+document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+    if (!taskToDeleteId) return;
+
+    const btn = document.getElementById('confirmDeleteBtn');
+    btn.innerHTML = "Deleting...";
+    btn.disabled = true;
 
     try {
-        // DELETE still expects the ID in the URL based on your TaskController
-        const response = await fetch(`${API_BASE_URL}/${taskId}`, {
+        const response = await fetch(`${API_BASE_URL}/${taskToDeleteId}`, {
             method: 'DELETE',
             headers: getHeaders()
         });
 
         if (response.ok) {
-            fetchTasks(); 
-            switchView('dashboardView'); 
+            await fetchTasks(); // Refresh the list
+            switchView('dashboardView'); // Ensure we are on the main view
+        } else {
+            alert("Failed to delete task.");
         }
     } catch (error) {
         console.error('Failed to delete task:', error);
+    } finally {
+        // Reset the button and close the modal
+        btn.innerHTML = "Delete";
+        btn.disabled = false;
+        closeDeleteModal();
     }
-}
+});
 
 // --- UI RENDERING ---
 
@@ -325,4 +351,41 @@ if (btnDeleteTaskFromEdit) {
 function logout() {
     localStorage.clear();
     window.location.href = 'login.html';
+}
+
+// --- AI SUMMARY MODAL LOGIC ---
+
+// Helper function to open the modal and set the text
+function openModal(text) {
+    document.getElementById('aiSummaryText').innerText = text;
+    document.getElementById('aiSummaryModal').classList.add('active');
+}
+
+// Helper function to close the modal
+function closeModal() {
+    document.getElementById('aiSummaryModal').classList.remove('active');
+}
+
+// The main AI function
+async function generateAISummary() {
+    // Show the modal immediately with a loading message
+    openModal("Generating your personalized AI summary... Please wait 🤖");
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/summary`, {
+            method: 'GET',
+            headers: getHeaders()
+        });
+
+        if (response.ok) {
+            const payload = await response.json();
+            // Replace the loading text with the actual AI response
+            document.getElementById('aiSummaryText').innerText = payload.data;
+        } else {
+            document.getElementById('aiSummaryText').innerText = "Failed to fetch AI summary.";
+        }
+    } catch (error) {
+        console.error("AI Error:", error);
+        document.getElementById('aiSummaryText').innerText = "Error connecting to AI service.";
+    }
 }

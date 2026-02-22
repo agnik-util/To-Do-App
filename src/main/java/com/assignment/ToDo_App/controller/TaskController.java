@@ -18,6 +18,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TaskController {
 
+    @GetMapping("/summary")
+    public ResponseEntity<Response<String>> getTaskSummary() {
+        return ResponseEntity.ok(taskService.getDailyTaskSummary());
+    }
+
     private final TaskService taskService;
 
 

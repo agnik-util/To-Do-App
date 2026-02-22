@@ -15,5 +15,5 @@ public interface TaskService {
     Response<Void> deleteTask(Long id);
     Response<List<Task>> getMyTasksByCompletionStatus(boolean completed);
     Response<List<Task>> getMyTasksByPriority(String priority);
-
+    Response<String> getDailyTaskSummary();
 }
