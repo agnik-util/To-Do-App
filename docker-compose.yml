@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  # 1. The MySQL Database Container
+  db:
+    image: mysql:8.0
+    container_name: todo_mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: todo_db
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  # 2. The Spring Boot Backend Container
+  app:
+    build: .
+    container_name: todo_backend
+    restart: always
+    ports:
+      - "3030:3030"
+    depends_on:
+      - db
+    environment:
+      # These override your local application.properties so it connects to the Docker DB
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/todo_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      # This pulls your real Groq API key directly from your computer's environment
+      - GROQ_API_KEY=${GROQ_API_KEY}
+
+# This ensures your tasks aren't deleted if you restart the database container
+volumes:
+  db_data:
